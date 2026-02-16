@@ -1044,6 +1044,47 @@ section {
     color: var(--primary-color);
 }
 
+.team-role {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.team-description {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin: 12px 0 16px 0;
+    line-height: 1.5;
+}
+
+.team-social {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+}
+
+.team-social a {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    font-size: 18px;
+}
+
+.team-social a:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-3px);
+}
+
 /* Contact Page */
 .contact-section {
     padding: 80px 0;
