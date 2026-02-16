@@ -31,46 +31,44 @@
 
     <!-- Header -->
     <header class="header">
-        <div class="container">
+        <div class="header-container">
             <div class="header-inner">
-                <a href="index.html" class="logo">
-                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="40" height="40">
-                        <circle cx="20" cy="20" r="18" fill="#0066CC"/>
-                        <path d="M12 20L18 26L28 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>SMAJ</span>
+                <!-- Logo (Left) -->
+                <a href="index.html" class="logo-wrap">
+                    <img src="assets/logo.png" alt="SMAJ Ecosystem Logo" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <span class="logo-text">SMAJ</span>
                 </a>
-                
-                <nav class="nav-menu">
+
+                <!-- Desktop Navigation (Centered) -->
+                <nav class="nav-desktop" id="primary-navigation">
                     <a href="index.html" class="nav-link">Home</a>
                     <a href="about.html" class="nav-link active">About</a>
                     <a href="projects.html" class="nav-link">Projects</a>
                     <a href="partnerships.html" class="nav-link">Partnerships</a>
                     <a href="insights.html" class="nav-link">Insights</a>
                     <a href="contact.html" class="nav-link">Contact</a>
-                    <a href="contact.html" class="btn btn-primary nav-cta">Get Started</a>
                 </nav>
 
-                <div class="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+                <!-- Desktop CTA Button (Right) -->
+                <a href="contact.html" class="btn btn-nav-cta">Connect Pi</a>
+
+                <!-- Mobile Menu Toggle (Right) -->
+                <button class="btn-menu-toggle" type="button" aria-expanded="false" aria-label="Toggle menu">☰</button>
             </div>
         </div>
-    </header>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu-overlay"></div>
-    <div class="mobile-menu">
-        <a href="index.html" class="mobile-nav-link">Home</a>
-        <a href="about.html" class="mobile-nav-link active">About</a>
-        <a href="projects.html" class="mobile-nav-link">Projects</a>
-        <a href="partnerships.html" class="mobile-nav-link">Partnerships</a>
-        <a href="insights.html" class="mobile-nav-link">Insights</a>
-        <a href="contact.html" class="mobile-nav-link">Contact</a>
-        <a href="contact.html" class="btn btn-primary mobile-nav-cta">Get Started</a>
-    </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu-overlay"></div>
+        <nav class="mobile-menu">
+            <a href="index.html" class="mobile-nav-link">Home</a>
+            <a href="about.html" class="mobile-nav-link active">About</a>
+            <a href="projects.html" class="mobile-nav-link">Projects</a>
+            <a href="partnerships.html" class="mobile-nav-link">Partnerships</a>
+            <a href="insights.html" class="mobile-nav-link">Insights</a>
+            <a href="contact.html" class="mobile-nav-link">Contact</a>
+            <a href="contact.html" class="btn btn-nav-cta btn-mobile-cta">Connect Pi</a>
+        </nav>
+    </header>
 
     <!-- Page Header -->
     <section class="page-header">

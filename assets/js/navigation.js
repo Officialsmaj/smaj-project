@@ -1,147 +1,160 @@
 /**
  * SMAJ Ecosystem - Navigation JavaScript
+ * Production-ready mobile menu implementation
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    initMobileNavigation();
-    initDropdownMenus();
-    initStickyNavigation();
+    initMobileMenu();
+    initHeaderScroll();
+    initActiveNavigation();
 });
 
 /**
- * Mobile Navigation
+ * Mobile Menu Handler
+ * Manages toggle, overlay interaction, body scroll lock, and animations
  */
-function initMobileNavigation() {
-    const hamburger = document.querySelector('.hamburger');
+function initMobileMenu() {
+    const menuToggle = document.querySelector('.btn-menu-toggle');
     const mobileMenu = document.querySelector('.mobile-menu');
     const mobileOverlay = document.querySelector('.mobile-menu-overlay');
+    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
     const body = document.body;
 
-    if (!hamburger || !mobileMenu) return;
+    if (!menuToggle || !mobileMenu || !mobileOverlay) return;
 
-    hamburger.addEventListener('click', function() {
-        const isActive = hamburger.classList.toggle('active');
-        mobileMenu.classList.toggle('active');
+    /**
+     * Close the mobile menu
+     */
+    const closeMenu = () => {
+        menuToggle.classList.remove('active');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.textContent = '☰';
         
-        if (mobileOverlay) {
-            mobileOverlay.classList.toggle('active');
+        mobileMenu.classList.remove('active');
+        mobileOverlay.classList.remove('active');
+        
+        // Unlock body scroll
+        body.style.overflow = '';
+        body.style.position = '';
+    };
+
+    /**
+     * Open the mobile menu
+     */
+    const openMenu = () => {
+        menuToggle.classList.add('active');
+        menuToggle.setAttribute('aria-expanded', 'true');
+        menuToggle.textContent = '✖';
+        
+        mobileMenu.classList.add('active');
+        mobileOverlay.classList.add('active');
+        
+        // Lock body scroll
+        body.style.overflow = 'hidden';
+        body.style.position = 'fixed';
+        body.style.width = '100%';
+    };
+
+    /**
+     * Toggle menu on hamburger click
+     */
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (mobileMenu.classList.contains('active')) {
+            closeMenu();
+        } else {
+            openMenu();
         }
-        
-        body.style.overflow = isActive ? 'hidden' : '';
     });
 
-    // Close on overlay click
-    if (mobileOverlay) {
-        mobileOverlay.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            mobileMenu.classList.remove('active');
-            mobileOverlay.classList.remove('active');
-            body.style.overflow = '';
-        });
-    }
+    /**
+     * Close menu on overlay click
+     */
+    mobileOverlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeMenu();
+    });
 
-    // Close on escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            hamburger.classList.remove('active');
-            mobileMenu.classList.remove('active');
-            if (mobileOverlay) {
-                mobileOverlay.classList.remove('active');
-            }
-            body.style.overflow = '';
+    /**
+     * Close menu on link click
+     */
+    mobileLinks.forEach((link) => {
+        link.addEventListener('click', (e) => {
+            // Allow page navigation to complete
+            setTimeout(closeMenu, 100);
+        });
+    });
+
+    /**
+     * Close menu on escape key
+     */
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+            closeMenu();
         }
     });
 
-    // Close on link click
-    const mobileLinks = mobileMenu.querySelectorAll('a');
-    mobileLinks.forEach(function(link) {
-        link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            mobileMenu.classList.remove('active');
-            if (mobileOverlay) {
-                mobileOverlay.classList.remove('active');
-            }
-            body.style.overflow = '';
-        });
+    /**
+     * Handle window resize - close menu on desktop
+     */
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 992 && mobileMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+
+    /**
+     * Prevent menu from closing when clicking inside menu
+     */
+    mobileMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
     });
 }
 
 /**
- * Dropdown Menus (if needed)
+ * Header Scroll Effects
+ * Adds scrolled class and manages header appearance on scroll
  */
-function initDropdownMenus() {
-    const dropdownTriggers = document.querySelectorAll('.has-dropdown');
-    
-    dropdownTriggers.forEach(function(trigger) {
-        trigger.addEventListener('click', function(e) {
-            e.preventDefault();
-            const dropdown = this.nextElementSibling;
-            if (dropdown && dropdown.classList.contains('dropdown-menu')) {
-                dropdown.classList.toggle('active');
-            }
-        });
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.has-dropdown')) {
-            const activeDropdowns = document.querySelectorAll('.dropdown-menu.active');
-            activeDropdowns.forEach(function(dropdown) {
-                dropdown.classList.remove('active');
-            });
-        }
-    });
-}
-
-/**
- * Sticky Navigation
- */
-function initStickyNavigation() {
+function initHeaderScroll() {
     const header = document.querySelector('.header');
     if (!header) return;
 
-    let lastScroll = 0;
-    const scrollThreshold = 100;
-
-    window.addEventListener('scroll', function() {
-        const currentScroll = window.pageYOffset;
-
-        // Add scrolled class for styling
-        if (currentScroll > 50) {
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-
-        // Hide/show on scroll direction
-        if (currentScroll > lastScroll && currentScroll > scrollThreshold) {
-            // Scrolling down - hide header
-            header.style.transform = 'translateY(-100%)';
-        } else {
-            // Scrolling up - show header
-            header.style.transform = 'translateY(0)';
-        }
-
-        lastScroll = currentScroll;
     });
 }
 
 /**
- * Active Navigation Link
+ * Active Navigation Link Indicator
+ * Highlights current page in navigation
  */
-function setActiveNavigation() {
+function initActiveNavigation() {
     const currentPath = window.location.pathname;
     const currentPage = currentPath.split('/').pop() || 'index.html';
     
-    const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
-    
-    navLinks.forEach(function(link) {
+    // Update desktop nav
+    const desktopLinks = document.querySelectorAll('.nav-desktop .nav-link');
+    desktopLinks.forEach((link) => {
         const href = link.getAttribute('href');
         if (href === currentPage || (currentPage === '' && href === 'index.html')) {
             link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+
+    // Update mobile nav
+    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+    mobileLinks.forEach((link) => {
+        const href = link.getAttribute('href');
+        if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
         }
     });
 }
-
-// Initialize
-setActiveNavigation();
