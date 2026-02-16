@@ -29,13 +29,12 @@ function initMobileMenu() {
         menuToggle.classList.remove('active');
         menuToggle.setAttribute('aria-expanded', 'false');
         menuToggle.textContent = '☰';
-        
+
         mobileMenu.classList.remove('active');
         mobileOverlay.classList.remove('active');
-        
+
         // Unlock body scroll
-        body.style.overflow = '';
-        body.style.position = '';
+        body.classList.remove('no-scroll');
     };
 
     /**
@@ -45,14 +44,12 @@ function initMobileMenu() {
         menuToggle.classList.add('active');
         menuToggle.setAttribute('aria-expanded', 'true');
         menuToggle.textContent = '✖';
-        
+
         mobileMenu.classList.add('active');
         mobileOverlay.classList.add('active');
-        
+
         // Lock body scroll
-        body.style.overflow = 'hidden';
-        body.style.position = 'fixed';
-        body.style.width = '100%';
+        body.classList.add('no-scroll');
     };
 
     /**
