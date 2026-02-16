@@ -19,6 +19,8 @@ function initMobileMenu() {
     const mobileOverlay = document.querySelector('.mobile-menu-overlay');
     const mobileLinks = document.querySelectorAll('.mobile-nav-link');
     const body = document.body;
+    const animationDuration = 300;
+    let isAnimating = false;
 
     if (!menuToggle || !mobileMenu || !mobileOverlay) return;
 
@@ -26,30 +28,42 @@ function initMobileMenu() {
      * Close the mobile menu
      */
     const closeMenu = () => {
+        if (isAnimating) return;
+        isAnimating = true;
+
         menuToggle.classList.remove('active');
         menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.textContent = '☰';
 
         mobileMenu.classList.remove('active');
         mobileOverlay.classList.remove('active');
 
         // Unlock body scroll
         body.classList.remove('no-scroll');
+
+        setTimeout(() => {
+            isAnimating = false;
+        }, animationDuration);
     };
 
     /**
      * Open the mobile menu
      */
     const openMenu = () => {
+        if (isAnimating) return;
+        isAnimating = true;
+
         menuToggle.classList.add('active');
         menuToggle.setAttribute('aria-expanded', 'true');
-        menuToggle.textContent = '✖';
 
         mobileMenu.classList.add('active');
         mobileOverlay.classList.add('active');
 
         // Lock body scroll
         body.classList.add('no-scroll');
+
+        setTimeout(() => {
+            isAnimating = false;
+        }, animationDuration);
     };
 
     /**
@@ -57,6 +71,7 @@ function initMobileMenu() {
      */
     menuToggle.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (window.innerWidth > 992) return;
         if (mobileMenu.classList.contains('active')) {
             closeMenu();
         } else {

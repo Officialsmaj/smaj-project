@@ -1807,6 +1807,32 @@ section {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Icon visibility inside hamburger button */
+.btn-menu-toggle .icon-open,
+.btn-menu-toggle .icon-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 1;
+    font-weight: 600;
+    font-family: var(--font-primary);
+}
+
+.btn-menu-toggle .icon-close {
+    display: none;
+}
+
+.btn-menu-toggle.active .icon-open {
+    display: none;
+}
+
+.btn-menu-toggle.active .icon-close {
+    display: inline-flex;
+}
+
 /* Mobile Menu Overlay - Dark Overlay */
 .mobile-menu-overlay {
     position: fixed;

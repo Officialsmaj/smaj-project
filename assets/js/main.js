@@ -26,7 +26,7 @@ function initPreloader() {
         });
     }
 }
-            hamburger?.classList.remove('active');
+
 
 /**
  * Scroll Animations
