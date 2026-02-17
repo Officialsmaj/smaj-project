@@ -1795,6 +1795,8 @@ section {
     font-size: 1.5rem;
     z-index: 1001;
     padding: 0;
+    position: relative;
+    flex-direction: row;
 }
 
 .btn-menu-toggle:hover {
@@ -1810,27 +1812,37 @@ section {
 /* Icon visibility inside hamburger button */
 .btn-menu-toggle .icon-open,
 .btn-menu-toggle .icon-close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    font-size: 20px;
+    position: absolute;
+    font-size: 1.5rem;
     line-height: 1;
-    font-weight: 600;
-    font-family: var(--font-primary);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Show open icon by default */
+.btn-menu-toggle .icon-open {
+    display: block;
+    opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
 .btn-menu-toggle .icon-close {
-    display: none;
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
+/* When menu is active, show close icon and hide open icon */
 .btn-menu-toggle.active .icon-open {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .btn-menu-toggle.active .icon-close {
-    display: inline-flex;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Mobile Menu Overlay - Dark Overlay */

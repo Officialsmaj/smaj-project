@@ -71,7 +71,9 @@ function initMobileMenu() {
      */
     menuToggle.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         if (window.innerWidth > 992) return;
+        
         if (mobileMenu.classList.contains('active')) {
             closeMenu();
         } else {
