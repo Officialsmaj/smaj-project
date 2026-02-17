@@ -732,13 +732,46 @@ section {
 .project-card {
     background: var(--bg-white);
     border-radius: 16px;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: var(--shadow-light);
     transition: all var(--transition-medium);
     position: relative;
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.project-badge {
+    position: absolute;
+    top: 16px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-white);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: var(--transition-medium);
+}
+
+.project-badge-ready {
+    right: 16px;
+    background: var(--accent-color);
+}
+
+.project-badge-ready:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 212, 170, 0.3);
+}
+
+.project-badge-dev {
+    left: 16px;
+    background: #FFA500;
+}
+
+.project-badge-dev:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(255, 165, 0, 0.3);
 }
 
 .project-card:hover {
@@ -2150,6 +2183,20 @@ section {
     .projects-grid,
     .insights-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .project-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        top: 12px;
+    }
+    
+    .project-badge-ready {
+        right: 12px;
+    }
+    
+    .project-badge-dev {
+        left: 12px;
     }
     
     .team-grid {
