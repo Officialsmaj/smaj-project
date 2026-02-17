@@ -219,7 +219,7 @@
                         
                         <!-- FormSubmit.co hidden fields -->
                         <input type="hidden" name="_captcha" value="false">
-                        <input type="hidden" name="_next" value="/success.html">
+                        <input type="hidden" name="_next" value="about:blank">
                         
                         <button type="submit" class="btn btn-primary">Send Message</button>
                     </form>
@@ -324,8 +324,83 @@
         </svg>
     </div>
 
+    <!-- Success Popup Modal -->
+    <div id="successModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 16px; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;">
+            <!-- Success Icon -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64" style="margin: 0 auto 24px; color: #10b981;">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            
+            <h2 style="margin: 0 0 16px 0; color: #1f2937; font-size: 24px;">Message Sent!</h2>
+            <p style="margin: 0 0 24px 0; color: #6b7280; line-height: 1.6;">Thank you for contacting us. We'll get back to you as soon as possible.</p>
+            
+            <button onclick="closeModal()" style="background: var(--primary-color); color: white; border: none; padding: 12px 32px; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: 600;">Close</button>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        #successModal[style*="display: flex"] {
+            display: flex !important;
+        }
+    </style>
+
     <!-- JavaScript -->
     <script src="assets/js/main.js"></script>
     <script src="assets/js/navigation.js"></script>
+    <script>
+        // Handle form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Submit to FormSubmit.co
+            fetch('https://formsubmit.co/officialsmaj@gmail.com', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Show success popup
+                    showModal();
+                    // Reset form
+                    document.getElementById('contactForm').reset();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error sending your message. Please try again.');
+            });
+        });
+        
+        function showModal() {
+            document.getElementById('successModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
 </body>
 </html>
