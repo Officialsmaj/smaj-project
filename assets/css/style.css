@@ -1818,31 +1818,33 @@ section {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    z-index: 10;
+    color: #ffffff;
+    font-weight: 700;
 }
 
 /* Show open icon by default */
 .btn-menu-toggle .icon-open {
-    display: block;
+    visibility: visible;
     opacity: 1;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .btn-menu-toggle .icon-close {
-    display: block;
+    visibility: hidden;
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 /* When menu is active, show close icon and hide open icon */
 .btn-menu-toggle.active .icon-open {
+    visibility: hidden;
     opacity: 0;
-    pointer-events: none;
 }
 
 .btn-menu-toggle.active .icon-close {
+    visibility: visible;
     opacity: 1;
-    pointer-events: auto;
 }
 
 /* Mobile Menu Overlay - Dark Overlay */
