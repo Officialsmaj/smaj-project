@@ -18,6 +18,7 @@ function initMobileMenu() {
     const mobileMenu = document.querySelector('.mobile-menu');
     const mobileOverlay = document.querySelector('.mobile-menu-overlay');
     const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+    const header = document.querySelector('.header');
     const body = document.body;
     const animationDuration = 300;
     let isAnimating = false;
@@ -36,6 +37,9 @@ function initMobileMenu() {
 
         mobileMenu.classList.remove('active');
         mobileOverlay.classList.remove('active');
+        if (header) {
+            header.classList.remove('menu-open');
+        }
 
         // Unlock body scroll
         body.classList.remove('no-scroll');
@@ -57,6 +61,9 @@ function initMobileMenu() {
 
         mobileMenu.classList.add('active');
         mobileOverlay.classList.add('active');
+        if (header) {
+            header.classList.add('menu-open');
+        }
 
         // Lock body scroll
         body.classList.add('no-scroll');

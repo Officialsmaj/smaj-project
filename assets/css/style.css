@@ -2168,3 +2168,25 @@ section {
         font-size: 2.25rem;
     }
 }
+/* Keep header above overlay when mobile menu is open */
+.header.menu-open {
+    z-index: 1102;
+}
+
+/* Park the toggle inside the open menu panel */
+.header.menu-open .btn-menu-toggle {
+    position: fixed;
+    top: 18px;
+    right: 24px;
+    z-index: 1101;
+    background: rgba(12, 15, 25, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 640px) {
+    .header.menu-open .btn-menu-toggle {
+        top: 14px;
+        right: 18px;
+    }
+}
