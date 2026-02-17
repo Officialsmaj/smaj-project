@@ -184,7 +184,7 @@
                 <!-- Contact Form -->
                 <div class="contact-form">
                     <h3>Send Us a Message</h3>
-                    <form id="contactForm">
+                    <form id="contactForm" action="https://formsubmit.co/officialsmaj@gmail.com" method="POST">
                         <div class="form-group">
                             <label for="name">Full Name</label>
                             <input type="text" id="name" name="name" placeholder="John Doe" required>
@@ -216,6 +216,10 @@
                             <label for="message">Message</label>
                             <textarea id="message" name="message" placeholder="Your message here..." required></textarea>
                         </div>
+                        
+                        <!-- FormSubmit.co hidden fields -->
+                        <input type="hidden" name="_captcha" value="false">
+                        <input type="hidden" name="_next" value="success.html">
                         
                         <button type="submit" class="btn btn-primary">Send Message</button>
                     </form>
