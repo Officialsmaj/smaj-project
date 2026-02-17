@@ -734,11 +734,15 @@ section {
     border-radius: 16px;
     overflow: hidden;
     box-shadow: var(--shadow-light);
-    transition: var(--transition-medium);
+    transition: all var(--transition-medium);
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .project-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-12px) scale(1.02);
     box-shadow: var(--shadow-heavy);
 }
 
@@ -790,6 +794,9 @@ section {
 
 .project-content {
     padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .project-content h3 {
@@ -800,6 +807,7 @@ section {
 .project-content p {
     font-size: 0.95rem;
     margin-bottom: 16px;
+    flex-grow: 1;
 }
 
 .project-link {
@@ -808,6 +816,7 @@ section {
     color: var(--primary-color);
     font-weight: 600;
     gap: 8px;
+    margin-top: auto;
 }
 
 .project-link:hover {
