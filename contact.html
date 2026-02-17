@@ -175,7 +175,7 @@
                 <!-- Contact Form -->
                 <div class="contact-form">
                     <h3>Send Us a Message</h3>
-                    <form id="contactForm" action="https://formsubmit.co/officialsmaj@gmail.com" method="POST">
+                    <form id="contactForm" method="POST" action="https://formsubmit.co/officialsmaj@gmail.com">
                         <div class="form-group">
                             <label for="name">Full Name</label>
                             <input type="text" id="name" name="name" placeholder="John Doe" required>
@@ -208,9 +208,9 @@
                             <textarea id="message" name="message" placeholder="Your message here..." required></textarea>
                         </div>
                         
-                        <!-- FormSubmit.co hidden fields -->
+                        <!-- FormSubmit.co config -->
                         <input type="hidden" name="_captcha" value="false">
-                        <input type="hidden" name="_subject" value="New Contact Form Submission from SMAJ Website">
+                        <input type="hidden" name="_subject" value="New Contact Form Submission">
                         
                         <button type="submit" class="btn btn-primary">Send Message</button>
                     </form>
