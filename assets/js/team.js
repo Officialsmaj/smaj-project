@@ -65,20 +65,31 @@ function createMemberCard(member, index) {
         const skills = document.createElement("div");
         skills.className = "team-focus";
         skills.setAttribute("aria-label", `${member.full_name} skills and focus areas`);
-        member.skills.forEach(value => { const tag = document.createElement("span"); tag.textContent = value; skills.append(tag); });
+        member.skills.slice(0, 3).forEach(value => { const tag = document.createElement("span"); tag.textContent = value; skills.append(tag); });
         card.append(skills);
     }
 
-    const socials = createSocialLinks(member);
-    if (socials.childElementCount) card.append(socials);
+    const footer = document.createElement("div");
+    footer.className = "team-card-footer";
+    const socials = createSocialLinks(member, true);
+    if (socials.childElementCount) footer.append(socials);
+    const profileButton = document.createElement("button");
+    profileButton.className = "team-profile-button";
+    profileButton.type = "button";
+    profileButton.textContent = "View profile";
+    profileButton.setAttribute("aria-label", `View ${member.full_name}'s full profile`);
+    profileButton.addEventListener("click", () => openProfileDialog(member));
+    footer.append(profileButton);
+    card.append(footer);
     return card;
 }
 
-function createSocialLinks(member) {
+function createSocialLinks(member, primaryOnly = false) {
     const wrapper = document.createElement("div");
     wrapper.className = "team-social";
     if (member.email) wrapper.append(createLink(`mailto:${member.email}`, "email", member.full_name, "bx-envelope"));
     Object.entries(member.social_links || {}).forEach(([network, url]) => {
+        if (primaryOnly && network !== "linkedin") return;
         const safeUrl = getSafeExternalUrl(url);
         if (!safeUrl) return;
         wrapper.append(createLink(safeUrl, network, member.full_name, socialIcons[network]));
@@ -94,6 +105,56 @@ function createLink(url, network, name, iconName) {
     if (network === "x") { const mark = document.createElement("span"); mark.className = "social-x-mark"; mark.textContent = "X"; link.append(mark); }
     else { const icon = document.createElement("i"); icon.className = `bx ${iconName || "bx-link-external"}`; link.append(icon); }
     return link;
+}
+
+function openProfileDialog(member) {
+    let dialog = document.querySelector("[data-team-profile-dialog]");
+    if (!dialog) {
+        dialog = document.createElement("dialog");
+        dialog.className = "team-profile-dialog";
+        dialog.dataset.teamProfileDialog = "";
+        dialog.addEventListener("click", event => {
+            if (event.target === dialog) dialog.close();
+        });
+        document.body.append(dialog);
+    }
+
+    dialog.replaceChildren();
+    const closeButton = document.createElement("button");
+    closeButton.className = "team-profile-close";
+    closeButton.type = "button";
+    closeButton.setAttribute("aria-label", "Close profile");
+    closeButton.innerHTML = '<i class="bx bx-x" aria-hidden="true"></i>';
+    closeButton.addEventListener("click", () => dialog.close());
+
+    const content = document.createElement("div");
+    content.className = "team-profile-content";
+    const name = document.createElement("h3");
+    name.textContent = member.full_name;
+    const role = document.createElement("p");
+    role.className = "team-role";
+    role.textContent = member.job_title;
+    const biography = document.createElement("p");
+    biography.className = "team-profile-biography";
+    biography.textContent = member.biography;
+    content.append(name, role, biography);
+
+    if (member.skills?.length) {
+        const skills = document.createElement("div");
+        skills.className = "team-focus";
+        member.skills.forEach(value => {
+            const tag = document.createElement("span");
+            tag.textContent = value;
+            skills.append(tag);
+        });
+        content.append(skills);
+    }
+
+    const socials = createSocialLinks(member);
+    if (socials.childElementCount) content.append(socials);
+    dialog.append(closeButton, content);
+    dialog.showModal();
+    closeButton.focus();
 }
 
 function getSafeExternalUrl(value) {
