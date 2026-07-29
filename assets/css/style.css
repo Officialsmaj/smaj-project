@@ -446,26 +446,49 @@ section {
     padding-bottom: 18px;
     scroll-behavior: smooth;
     scroll-snap-type: inline mandatory;
-    scrollbar-color: var(--primary-color) var(--line);
-    scrollbar-width: thin;
+    scrollbar-width: none;
 }
 
 .team-grid-leadership::-webkit-scrollbar {
-    height: 7px;
-}
-
-.team-grid-leadership::-webkit-scrollbar-track {
-    background: var(--line);
-    border-radius: 999px;
-}
-
-.team-grid-leadership::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 999px;
+    display: none;
 }
 
 .team-grid-leadership .team-member {
     scroll-snap-align: start;
+}
+
+.leadership-carousel-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin: -18px 0 22px;
+}
+
+.leadership-carousel-controls button {
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--secondary-color);
+    cursor: pointer;
+    display: flex;
+    font-size: 25px;
+    height: 46px;
+    justify-content: center;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    width: 46px;
+}
+
+.leadership-carousel-controls button:hover:not(:disabled) {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+.leadership-carousel-controls button:disabled {
+    cursor: default;
+    opacity: 0.35;
 }
 
 /* Cards */
@@ -2373,6 +2396,15 @@ section {
         max-width: 100%;
         overflow-x: auto;
         padding-bottom: 14px;
+    }
+
+    .leadership-carousel-controls {
+        margin: -12px 0 18px;
+    }
+
+    .leadership-carousel-controls button {
+        height: 40px;
+        width: 40px;
     }
 
     .team-grid-leadership .team-image {

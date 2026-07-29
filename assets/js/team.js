@@ -1,6 +1,9 @@
 import { supabaseClient } from "./supabase-client.js";
 
-document.addEventListener("DOMContentLoaded", loadPublishedTeam);
+document.addEventListener("DOMContentLoaded", function () {
+    initTeamCarousel();
+    loadPublishedTeam();
+});
 
 async function loadPublishedTeam() {
     const container = document.querySelector("[data-team-members]");
@@ -25,6 +28,38 @@ async function loadPublishedTeam() {
     }
 
     container.replaceChildren(...data.map(createMemberCard));
+    updateCarouselControls();
+}
+
+function initTeamCarousel() {
+    const container = document.querySelector("[data-team-members]");
+    const previous = document.querySelector("[data-team-previous]");
+    const next = document.querySelector("[data-team-next]");
+    if (!container || !previous || !next) return;
+
+    previous.addEventListener("click", () => scrollTeamCarousel(-1));
+    next.addEventListener("click", () => scrollTeamCarousel(1));
+    container.addEventListener("scroll", updateCarouselControls, { passive: true });
+    window.addEventListener("resize", updateCarouselControls);
+    updateCarouselControls();
+}
+
+function scrollTeamCarousel(direction) {
+    const container = document.querySelector("[data-team-members]");
+    const card = container?.querySelector(".team-member");
+    if (!container || !card) return;
+    const gap = parseFloat(window.getComputedStyle(container).columnGap) || 0;
+    container.scrollBy({ left: direction * (card.getBoundingClientRect().width + gap), behavior: "smooth" });
+}
+
+function updateCarouselControls() {
+    const container = document.querySelector("[data-team-members]");
+    const previous = document.querySelector("[data-team-previous]");
+    const next = document.querySelector("[data-team-next]");
+    if (!container || !previous || !next) return;
+    const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
+    previous.disabled = container.scrollLeft <= 2;
+    next.disabled = container.scrollLeft >= maximum - 2;
 }
 
 function createMemberCard(member, index) {
