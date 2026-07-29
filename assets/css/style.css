@@ -1760,6 +1760,7 @@ section {
     box-shadow: none;
     display: flex;
     flex-direction: column;
+    min-width: 0;
     overflow: hidden;
     padding: 0;
     text-align: left;
@@ -1806,6 +1807,7 @@ section {
 
 .team-member h4 a {
     color: var(--secondary-color);
+    overflow-wrap: anywhere;
     text-decoration: none;
 }
 
@@ -1821,6 +1823,7 @@ section {
     font-weight: 600;
     line-height: 1.6;
     margin: 6px 0 0;
+    overflow-wrap: anywhere;
 }
 
 .team-description {
@@ -2339,6 +2342,8 @@ section {
     .team-grid-leadership {
         gap: 28px 12px;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: 100%;
+        overflow: hidden;
     }
 
     .team-grid-leadership .team-image {
