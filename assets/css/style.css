@@ -437,8 +437,35 @@ section {
 .team-grid-leadership {
     align-items: start;
     gap: 48px 16px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    justify-content: center;
+    grid-auto-columns: calc((100% - 32px) / 3);
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    justify-content: start;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-bottom: 18px;
+    scroll-behavior: smooth;
+    scroll-snap-type: inline mandatory;
+    scrollbar-color: var(--primary-color) var(--line);
+    scrollbar-width: thin;
+}
+
+.team-grid-leadership::-webkit-scrollbar {
+    height: 7px;
+}
+
+.team-grid-leadership::-webkit-scrollbar-track {
+    background: var(--line);
+    border-radius: 999px;
+}
+
+.team-grid-leadership::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 999px;
+}
+
+.team-grid-leadership .team-member {
+    scroll-snap-align: start;
 }
 
 /* Cards */
@@ -2240,7 +2267,7 @@ section {
     }
 
     .team-grid-leadership {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: none;
     }
 
     .grid-3,
@@ -2341,9 +2368,11 @@ section {
 
     .team-grid-leadership {
         gap: 28px 12px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-columns: calc((100% - 12px) / 2);
+        grid-template-columns: none;
         max-width: 100%;
-        overflow: hidden;
+        overflow-x: auto;
+        padding-bottom: 14px;
     }
 
     .team-grid-leadership .team-image {
