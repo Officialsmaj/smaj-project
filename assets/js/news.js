@@ -5,8 +5,11 @@ import { showFeedbackPopup } from "./feedback.js";
 const supabaseConfig = {
     table: smajEnv.SUPABASE_NEWS_TABLE || "news_articles"
 };
+const contentType = document.body.dataset.contentType === "insight" ? "insight" : "news";
+const contentLabel = contentType === "insight" ? "insights" : "news";
 
 const defaultImage = "https://smaj.org/assets/images/logo.jpg";
+let loadedArticles = [];
 const fallbackArticles = [
     {
         id: "local-smaj-ecosystem-update",
@@ -27,6 +30,12 @@ const fallbackArticles = [
 
 document.addEventListener("DOMContentLoaded", function () {
     const page = document.body.dataset.newsPage;
+    document.querySelectorAll("[data-content-category]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            document.querySelectorAll("[data-content-category]").forEach(item => item.classList.toggle("active", item === button));
+            renderArticleList(button.dataset.contentCategory || "");
+        });
+    });
     if (page === "list") loadNewsList();
     if (page === "detail") loadNewsDetail();
 });
@@ -35,24 +44,38 @@ async function loadNewsList() {
     const status = document.querySelector("[data-news-status]");
     const list = document.querySelector("[data-news-list]");
 
-    setStatus(status, "Loading latest news...", "info");
+    if (list) list.innerHTML = "";
+    setStatus(status, `Loading latest ${contentLabel}...`, "info");
 
     try {
         const articles = await fetchPublishedArticles();
         if (!articles.length) {
-            setStatus(status, "No published news yet.", "info");
+            setStatus(status, `No published ${contentLabel} yet.`, "info");
             if (list) list.innerHTML = "";
             return;
         }
 
         setStatus(status, "", "");
-        if (list) list.innerHTML = articles.map(createNewsCard).join("");
+        loadedArticles = articles;
+        renderArticleList();
     } catch (error) {
         console.error(error);
-        const articles = fallbackArticles.map(normalizeArticle);
-        setStatus(status, "Showing latest available SMAJ Ecosystem update while live news reconnects.", "info");
-        if (list) list.innerHTML = articles.map(createNewsCard).join("");
+        const articles = contentType === "news" ? fallbackArticles.map(normalizeArticle) : [];
+        setStatus(status, `Could not load published ${contentLabel} right now.`, "error");
+        loadedArticles = articles;
+        renderArticleList();
     }
+}
+
+function renderArticleList(category = "") {
+    const list = document.querySelector("[data-news-list]");
+    if (!list) return;
+    const visible = category
+        ? loadedArticles.filter(article => article.category.toLowerCase() === category.toLowerCase())
+        : loadedArticles;
+    list.innerHTML = visible.length
+        ? visible.map(createNewsCard).join("")
+        : `<p class="news-empty">No published ${contentLabel} in this category yet.</p>`;
 }
 
 async function loadNewsDetail() {
@@ -73,6 +96,7 @@ async function loadNewsDetail() {
             .from(supabaseConfig.table)
             .select("*")
             .eq("slug", slug)
+            .eq("content_type", contentType)
             .eq("status", "published")
             .limit(1)
             .maybeSingle();
@@ -116,6 +140,7 @@ async function fetchPublishedArticles(limit) {
     let query = supabaseClient
         .from(supabaseConfig.table)
         .select("*")
+        .eq("content_type", contentType)
         .eq("status", "published")
         .order("published_at", { ascending: false });
 
@@ -135,7 +160,7 @@ function createNewsCard(article) {
             <div class="insight-content">
                 <div class="insight-meta">
                     <span class="insight-category">${escapeHtml(article.category)}</span>
-                    <span>${escapeHtml(formatDate(article.published_at))}</span>
+                    <span>${escapeHtml(contentType === "insight" ? `${article.reading_time} min read` : formatDate(article.published_at))}</span>
                 </div>
                 <h3>${escapeHtml(article.title)}</h3>
                 <p>${escapeHtml(article.excerpt || shortText(article.content, 140))}</p>
@@ -158,6 +183,7 @@ function createArticleDetail(article) {
                         <span class="insight-category">${escapeHtml(article.category)}</span>
                         <span>${escapeHtml(formatDate(article.published_at))}</span>
                         <span>${escapeHtml(article.author)}</span>
+                        ${contentType === "insight" ? `<span>${escapeHtml(`${article.reading_time} min read`)}</span>` : ""}
                     </div>
                     <h1>${escapeHtml(article.title)}</h1>
                     <p>${escapeHtml(article.excerpt)}</p>
@@ -237,8 +263,9 @@ function getArticleSlug() {
 function normalizeArticle(article) {
     return Object.assign({}, article, {
         featured_image: article.featured_image || defaultImage,
-        category: article.category || "News",
+        category: article.category || (contentType === "insight" ? "Insights" : "News"),
         author: article.author || "SMAJ Team",
+        reading_time: Number(article.reading_time) || calculateReadingTime(article.content),
         tags: Array.isArray(article.tags) ? article.tags : parseTags(article.tags),
         excerpt: article.excerpt || shortText(article.content, 160)
     });
@@ -259,7 +286,13 @@ function formatArticleContent(content) {
 }
 
 function createArticleUrl(slug) {
+    if (contentType === "insight") return `/insights/article/?slug=${encodeURIComponent(slug || "")}`;
     return `/news/${encodeURIComponent(slug || "")}/`;
+}
+
+function calculateReadingTime(content) {
+    const words = String(content || "").trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.ceil(words / 220));
 }
 
 function createAbsoluteUrl(value) {
@@ -274,7 +307,7 @@ function shortText(value, maxLength) {
 }
 
 function formatDate(value) {
-    if (!value) return "SMAJ News";
+    if (!value) return contentType === "insight" ? "SMAJ Insights" : "SMAJ News";
     try {
         return new Intl.DateTimeFormat("en", {
             year: "numeric",

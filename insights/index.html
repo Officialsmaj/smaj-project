@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
 </head>
 
-<body>
+<body data-news-page="list" data-content-type="insight">
     <div class="preloader">
         <div class="preloader-logo">
             <img src="/assets/images/logo.jpg" alt="SMAJ Ecosystem Logo" class="preloader-logo-img">
@@ -84,14 +84,15 @@
     <section class="projects-page">
         <div class="container">
             <div class="projects-filter">
-                <button class="filter-btn active">All</button>
-                <button class="filter-btn">SMAJ Updates</button>
-                <button class="filter-btn">AI</button>
-                <button class="filter-btn">Venture Building</button>
-                <button class="filter-btn">Innovation</button>
+                <button class="filter-btn active" type="button" data-content-category="">All</button>
+                <button class="filter-btn" type="button" data-content-category="SMAJ Updates">SMAJ Updates</button>
+                <button class="filter-btn" type="button" data-content-category="AI">AI</button>
+                <button class="filter-btn" type="button" data-content-category="Venture Building">Venture Building</button>
+                <button class="filter-btn" type="button" data-content-category="Innovation">Innovation</button>
             </div>
             
-            <div class="insights-grid">
+            <p class="application-status news-status" data-news-status aria-live="polite">Loading insights...</p>
+            <div class="insights-grid" data-news-list>
                 <div class="insight-card animate-on-scroll">
                     <div class="insight-image">
                         <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=500&q=80" alt="SMAJ Ecosystem vision" loading="lazy">
@@ -242,7 +243,7 @@
                     <p><strong>Email:</strong> contact@smaj.org</p>
                     <p><strong>Phone:</strong> +971 50 1259029</p>
                     <p><strong>Location:</strong> Dubai Silicon Oasis HQ Building, Dubai, UAE</p>
-                    <p><strong>Hours:</strong> Sat - Thu | 9AM–6PM</p>
+                    <p><strong>Hours:</strong> Sat - Thu | 9AMâ€“6PM</p>
                 </div>
             </div>
             
@@ -290,7 +291,8 @@
 
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/navigation.js"></script>
-    <script src="/assets/js/projects-filter.js"></script>
+    <script src="/assets/js/env.js"></script>
+    <script type="module" src="/assets/js/news.js"></script>
 </body>
 </html>
 

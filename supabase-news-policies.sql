@@ -10,6 +10,8 @@ create table if not exists public.news_articles (
     category text not null default 'News',
     tags text[] not null default '{}',
     author text not null default 'SMAJ Team',
+    content_type text not null default 'news' check (content_type in ('news', 'insight')),
+    reading_time integer check (reading_time is null or reading_time > 0),
     status text not null default 'draft' check (status in ('draft', 'published')),
     seo_title text,
     seo_description text,
@@ -19,8 +21,15 @@ create table if not exists public.news_articles (
     updated_at timestamptz not null default now()
 );
 
+alter table public.news_articles
+    add column if not exists content_type text not null default 'news',
+    add column if not exists reading_time integer;
+
 create index if not exists news_articles_status_published_idx
     on public.news_articles (status, published_at desc);
+
+create index if not exists news_articles_type_status_published_idx
+    on public.news_articles (content_type, status, published_at desc);
 
 create index if not exists news_articles_slug_idx
     on public.news_articles (slug);
@@ -110,7 +119,11 @@ for each row execute function public.set_news_updated_at();
 
 create or replace view public.news_sitemap as
 select
-    'https://smaj.org/news/' || slug || '/' as loc,
+    case
+        when content_type = 'insight'
+            then 'https://smaj.org/insights/article/?slug=' || slug
+        else 'https://smaj.org/news/' || slug || '/'
+    end as loc,
     coalesce(updated_at, published_at, created_at) as lastmod
 from public.news_articles
 where status = 'published';

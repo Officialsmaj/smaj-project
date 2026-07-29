@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>News Admin | SMAJ Ecosystem</title>
+    <title>Content Admin | SMAJ Ecosystem</title>
     <link rel="icon" type="image/png" href="/assets/images/logo.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,11 +22,12 @@
             </a>
             <nav class="admin-sidebar" aria-label="Admin sections">
                 <a class="admin-sidebar-link" href="/admin.html"><i class="bx bx-list-check"></i>Applications</a>
-                <a class="admin-sidebar-link active" href="/admin-news.html"><i class="bx bx-news"></i>News</a>
+                <a class="admin-sidebar-link active" href="/admin-news.html"><i class="bx bx-news"></i>Content</a>
                 <a class="admin-sidebar-link" href="/admin-team.html"><i class="bx bx-group"></i>Team</a>
             </nav>
         </div>
         <nav class="admin-actions">
+            <a href="/insights/" class="btn btn-outline">View Insights</a>
             <a href="/news/" class="btn btn-outline">View News</a>
             <button type="button" class="btn btn-primary" data-admin-logout>Logout</button>
         </nav>
@@ -35,18 +36,18 @@
     <main class="admin-main">
         <section class="admin-hero">
             <div>
-                <span class="application-kicker">News Publishing</span>
-                <h1>News Dashboard</h1>
-                <p>Create, draft, preview, publish, edit, and remove SMAJ Ecosystem news articles.</p>
+                <span class="application-kicker">Content Publishing</span>
+                <h1>Content Dashboard</h1>
+                <p>Create, draft, preview, publish, edit, and remove SMAJ Ecosystem news and insights.</p>
             </div>
             <div class="admin-hero-actions">
                 <button type="button" class="btn btn-outline" data-news-refresh><i class="bx bx-refresh"></i>Refresh</button>
-                <button type="button" class="btn btn-accent" data-news-new><i class="bx bx-plus"></i>Create News</button>
+                <button type="button" class="btn btn-accent" data-news-new><i class="bx bx-plus"></i>Create Article</button>
             </div>
         </section>
 
         <section class="admin-stat-grid" aria-label="News counts">
-            <article class="admin-stat-card"><span>All News</span><strong data-news-count-all>0</strong></article>
+            <article class="admin-stat-card"><span>All Content</span><strong data-news-count-all>0</strong></article>
             <article class="admin-stat-card"><span>Drafts</span><strong data-news-count-draft>0</strong></article>
             <article class="admin-stat-card"><span>Published</span><strong data-news-count-published>0</strong></article>
             <article class="admin-stat-card"><span>Categories</span><strong data-news-count-categories>0</strong></article>
@@ -54,8 +55,8 @@
         </section>
 
         <section class="admin-news-tabs" aria-label="News views">
-            <button class="filter-btn active" type="button" data-news-view="all">All News</button>
-            <button class="filter-btn" type="button" data-news-view="create">Create News</button>
+            <button class="filter-btn active" type="button" data-news-view="all">All Content</button>
+            <button class="filter-btn" type="button" data-news-view="create">Create Article</button>
             <button class="filter-btn" type="button" data-news-view="draft">Drafts</button>
             <button class="filter-btn" type="button" data-news-view="published">Published</button>
         </section>
@@ -64,7 +65,7 @@
             <section class="admin-panel" data-news-list-panel>
                 <div class="admin-panel-header">
                     <div>
-                        <h2 data-news-list-title>All News</h2>
+                        <h2 data-news-list-title>All Content</h2>
                         <p><span data-news-visible-count>0</span> articles visible. Drafts remain admin-only.</p>
                     </div>
                     <p class="application-status" data-news-status aria-live="polite"></p>
@@ -72,8 +73,16 @@
 
                 <div class="admin-filters admin-news-filters">
                     <div class="form-group">
-                        <label for="newsSearch">Search News</label>
+                        <label for="newsSearch">Search Content</label>
                         <input id="newsSearch" type="search" placeholder="Title, category, author, tag..." data-news-search>
+                    </div>
+                    <div class="form-group">
+                        <label for="newsTypeFilter">Type</label>
+                        <select id="newsTypeFilter" data-news-type-filter>
+                            <option value="">All types</option>
+                            <option value="news">News</option>
+                            <option value="insight">Insight</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="newsStatusFilter">Status</label>
@@ -91,6 +100,7 @@
                         <thead>
                             <tr>
                                 <th>Article</th>
+                                <th>Type</th>
                                 <th>Status</th>
                                 <th>Category</th>
                                 <th>Date</th>
@@ -99,7 +109,7 @@
                             </tr>
                         </thead>
                         <tbody data-news-list>
-                            <tr><td colspan="6">Loading news...</td></tr>
+                            <tr><td colspan="7">Loading content...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -108,7 +118,7 @@
             <section class="admin-panel admin-news-form-panel" data-news-form-panel hidden>
                 <div class="admin-panel-header">
                     <div>
-                        <h2 data-news-form-heading>Create News</h2>
+                        <h2 data-news-form-heading>Create Article</h2>
                         <p>Slug, SEO fields, Open Graph image, and publish date are saved with each article.</p>
                     </div>
                     <button type="button" class="btn btn-outline" data-news-close-form><i class="bx bx-x"></i>Close</button>
@@ -117,6 +127,13 @@
                 <form class="admin-news-form" data-news-form>
                     <input type="hidden" name="id" data-news-id>
                     <div class="form-grid">
+                        <div class="form-group">
+                            <label for="contentType">Content Type</label>
+                            <select id="contentType" name="content_type" required>
+                                <option value="news">News</option>
+                                <option value="insight">Insight</option>
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label for="newsTitle">Title</label>
                             <input id="newsTitle" name="title" type="text" required data-news-title>
@@ -153,6 +170,10 @@
                         <div class="form-group">
                             <label for="newsAuthor">Author</label>
                             <input id="newsAuthor" name="author" type="text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newsReadingTime">Reading Time (minutes)</label>
+                            <input id="newsReadingTime" name="reading_time" type="number" min="1" placeholder="Calculated automatically">
                         </div>
                         <div class="form-group">
                             <label for="newsStatus">Status</label>

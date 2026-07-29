@@ -55,6 +55,7 @@ function initNewsAdmin() {
     document.querySelector("[data-news-reset]")?.addEventListener("click", resetFilters);
     document.querySelector("[data-news-search]")?.addEventListener("input", renderNews);
     document.querySelector("[data-news-status-filter]")?.addEventListener("change", renderNews);
+    document.querySelector("[data-news-type-filter]")?.addEventListener("change", renderNews);
     document.querySelector("[data-news-list]")?.addEventListener("click", handleNewsAction);
     newsForm?.addEventListener("submit", saveNewsArticle);
     newsForm?.addEventListener("input", saveCreateNewsFormDraft);
@@ -82,7 +83,7 @@ function initNewsAdmin() {
 
 async function loadNews() {
     const status = document.querySelector("[data-news-status]");
-    setStatus(status, "Loading news...", "info");
+    setStatus(status, "Loading content...", "info");
 
     try {
         const { data, error } = await supabaseClient
@@ -95,12 +96,12 @@ async function loadNews() {
         state.articles = (data || []).map(normalizeArticle);
         renderCounts();
         renderNews();
-        setStatus(status, `Loaded ${state.articles.length} news articles.`, "success");
+        setStatus(status, `Loaded ${state.articles.length} articles.`, "success");
     } catch (error) {
         console.error(error);
         setStatus(status, error.isStorageUploadError ? error.message : getAdminErrorMessage(error), "error");
         const list = document.querySelector("[data-news-list]");
-        if (list) list.innerHTML = `<tr><td colspan="6">${escapeHtml(getAdminErrorMessage(error))}</td></tr>`;
+        if (list) list.innerHTML = `<tr><td colspan="7">${escapeHtml(getAdminErrorMessage(error))}</td></tr>`;
     }
 }
 
@@ -160,12 +161,14 @@ function renderNews() {
 
     const search = document.querySelector("[data-news-search]")?.value.trim().toLowerCase() || "";
     const statusFilter = document.querySelector("[data-news-status-filter]")?.value || "";
-    const title = state.activeView === "draft" ? "Drafts" : state.activeView === "published" ? "Published" : "All News";
+    const typeFilter = document.querySelector("[data-news-type-filter]")?.value || "";
+    const title = state.activeView === "draft" ? "Drafts" : state.activeView === "published" ? "Published" : "All Content";
 
     setText("[data-news-list-title]", title);
 
     state.filtered = state.articles.filter(function (article) {
         const statusMatches = !statusFilter || article.status === statusFilter;
+        const typeMatches = !typeFilter || article.content_type === typeFilter;
         const viewMatches = !["draft", "published"].includes(state.activeView) || article.status === state.activeView;
         const searchMatches = !search || [
             article.title,
@@ -176,13 +179,13 @@ function renderNews() {
             article.tags.join(" ")
         ].join(" ").toLowerCase().includes(search);
 
-        return statusMatches && viewMatches && searchMatches;
+        return statusMatches && typeMatches && viewMatches && searchMatches;
     });
 
     setText("[data-news-visible-count]", state.filtered.length);
 
     if (!state.filtered.length) {
-        list.innerHTML = '<tr><td colspan="6">No news articles match this view.</td></tr>';
+        list.innerHTML = '<tr><td colspan="7">No articles match this view.</td></tr>';
         return;
     }
 
@@ -193,6 +196,7 @@ function renderNews() {
                     <strong>${escapeHtml(article.title || "Untitled")}</strong>
                     <span>${escapeHtml(article.slug || "")}</span>
                 </td>
+                <td>${escapeHtml(article.content_type === "insight" ? "Insight" : "News")}</td>
                 <td><span class="admin-status-pill admin-status-${article.status}">${formatNewsStatus(article.status)}</span></td>
                 <td>${escapeHtml(article.category || "News")}</td>
                 <td>${escapeHtml(formatDate(article.published_at || article.updated_at))}</td>
@@ -215,7 +219,7 @@ function startCreateNews() {
     state.slugTouched = false;
     const form = document.querySelector("[data-news-form]");
     form?.reset();
-    setText("[data-news-form-heading]", "Create News");
+    setText("[data-news-form-heading]", "Create Article");
     if (!restoreCreateNewsFormDraft()) setDefaultPublishedDate();
     showFormPanel();
 }
@@ -229,11 +233,12 @@ function editNewsArticle(id) {
 
     state.editingId = article.id;
     state.slugTouched = true;
-    setText("[data-news-form-heading]", "Edit News");
+    setText("[data-news-form-heading]", `Edit ${article.content_type === "insight" ? "Insight" : "News"}`);
     showFormPanel();
 
     const form = document.querySelector("[data-news-form]");
     form.elements.id.value = article.id || "";
+    form.elements.content_type.value = article.content_type || "news";
     form.elements.title.value = article.title || "";
     form.elements.slug.value = article.slug || "";
     form.elements.excerpt.value = article.excerpt || "";
@@ -242,6 +247,7 @@ function editNewsArticle(id) {
     form.elements.category.value = article.category || "";
     form.elements.tags.value = article.tags.join(", ");
     form.elements.author.value = article.author || "";
+    form.elements.reading_time.value = article.reading_time || "";
     form.elements.status.value = article.status || "draft";
     form.elements.seo_title.value = article.seo_title || "";
     form.elements.seo_description.value = article.seo_description || "";
@@ -276,7 +282,7 @@ async function upsertNewsArticle(actionButton) {
 
     if (!form.reportValidity()) return;
 
-    setStatus(status, "Saving news article...", "info");
+    setStatus(status, "Saving article...", "info");
     setButtonLoading(actionButton, true);
 
     try {
@@ -382,6 +388,7 @@ function collectArticlePayload(form) {
     const publishedAt = fromDatetimeLocal(formData.get("published_at")) || now;
 
     return {
+        content_type: formData.get("content_type") === "insight" ? "insight" : "news",
         title,
         slug,
         excerpt: String(formData.get("excerpt") || "").trim(),
@@ -390,6 +397,7 @@ function collectArticlePayload(form) {
         category: String(formData.get("category") || "News").trim(),
         tags: parseTags(formData.get("tags")),
         author: String(formData.get("author") || "SMAJ Team").trim(),
+        reading_time: Number(formData.get("reading_time")) || calculateReadingTime(formData.get("content")),
         status,
         seo_title: String(formData.get("seo_title") || title).trim(),
         seo_description: String(formData.get("seo_description") || formData.get("excerpt") || "").trim(),
@@ -432,7 +440,7 @@ function restoreCreateNewsFormDraft() {
         });
 
         state.slugTouched = Boolean(fields.slug);
-        setText("[data-news-form-heading]", "Create News");
+        setText("[data-news-form-heading]", "Create Article");
         showFormPanel();
         setStatus(document.querySelector("[data-news-status]"), "Unsaved create-news input restored after refresh.", "info");
         return true;
@@ -531,9 +539,11 @@ function showNewsPreview() {
         <article class="news-article">
             ${payload.featured_image ? `<img class="news-article-image" src="${escapeAttribute(payload.featured_image)}" alt="${escapeAttribute(payload.title)}">` : ""}
             <div class="news-article-meta">
+                <span>${escapeHtml(payload.content_type === "insight" ? "Insight" : "News")}</span>
                 <span class="insight-category">${escapeHtml(payload.category)}</span>
                 <span>${escapeHtml(formatDate(payload.published_at || new Date().toISOString()))}</span>
                 <span>${escapeHtml(payload.author)}</span>
+                <span>${escapeHtml(`${payload.reading_time} min read`)}</span>
             </div>
             <h1>${escapeHtml(payload.title)}</h1>
             <p class="news-article-excerpt">${escapeHtml(payload.excerpt)}</p>
@@ -557,9 +567,11 @@ function previewExistingNews(id) {
         <article class="news-article">
             ${article.featured_image ? `<img class="news-article-image" src="${escapeAttribute(article.featured_image)}" alt="${escapeAttribute(article.title)}">` : ""}
             <div class="news-article-meta">
+                <span>${escapeHtml(article.content_type === "insight" ? "Insight" : "News")}</span>
                 <span class="insight-category">${escapeHtml(article.category)}</span>
                 <span>${escapeHtml(formatDate(article.published_at || article.updated_at))}</span>
                 <span>${escapeHtml(article.author)}</span>
+                <span>${escapeHtml(`${article.reading_time} min read`)}</span>
                 <span>${escapeHtml(formatNewsStatus(article.status))}</span>
             </div>
             <h1>${escapeHtml(article.title)}</h1>
@@ -580,8 +592,10 @@ function closeNewsPreview() {
 function resetFilters() {
     const search = document.querySelector("[data-news-search]");
     const status = document.querySelector("[data-news-status-filter]");
+    const type = document.querySelector("[data-news-type-filter]");
     if (search) search.value = "";
     if (status) status.value = "";
+    if (type) type.value = "";
     state.activeView = "all";
     document.querySelectorAll("[data-news-view]").forEach(function (button) {
         button.classList.toggle("active", button.dataset.newsView === "all");
@@ -632,12 +646,19 @@ async function fetchCurrentAdminUser() {
 
 function normalizeArticle(article) {
     return Object.assign({}, article, {
+        content_type: article.content_type === "insight" ? "insight" : "news",
         status: normalizeNewsStatus(article.status),
         tags: Array.isArray(article.tags) ? article.tags : parseTags(article.tags),
         featured_image: article.featured_image || "/assets/images/logo.jpg",
         author: article.author || "SMAJ Team",
-        category: article.category || "News"
+        category: article.category || (article.content_type === "insight" ? "Insights" : "News"),
+        reading_time: Number(article.reading_time) || calculateReadingTime(article.content)
     });
+}
+
+function calculateReadingTime(content) {
+    const words = String(content || "").trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.ceil(words / 220));
 }
 
 function normalizeNewsStatus(status) {
