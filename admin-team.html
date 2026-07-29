@@ -77,6 +77,32 @@
             </form>
         </section>
     </main>
+    <div class="team-crop-modal" data-team-crop-modal hidden>
+        <section class="team-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="teamCropTitle">
+            <div class="admin-panel-header">
+                <div><h2 id="teamCropTitle">Crop Team Photo</h2><p>Drag the photo inside the frame and use zoom to compose a 5:4 team card image.</p></div>
+                <button type="button" class="btn btn-outline" data-team-crop-cancel aria-label="Close crop editor"><i class="bx bx-x"></i>Close</button>
+            </div>
+            <div class="team-crop-workspace" data-team-crop-workspace>
+                <img data-team-crop-image alt="Photo being cropped" draggable="false">
+                <div class="team-crop-frame" data-team-crop-frame aria-hidden="true">
+                    <span class="team-crop-corner corner-top-left"></span><span class="team-crop-corner corner-top-right"></span>
+                    <span class="team-crop-corner corner-bottom-left"></span><span class="team-crop-corner corner-bottom-right"></span>
+                    <span class="team-crop-grid grid-vertical grid-one"></span><span class="team-crop-grid grid-vertical grid-two"></span>
+                    <span class="team-crop-grid grid-horizontal grid-one"></span><span class="team-crop-grid grid-horizontal grid-two"></span>
+                </div>
+            </div>
+            <div class="team-crop-toolbar">
+                <label for="teamCropZoom"><i class="bx bx-zoom-in"></i> Zoom</label>
+                <input id="teamCropZoom" type="range" min="1" max="3" step="0.01" value="1" data-team-crop-zoom>
+                <button type="button" class="btn btn-outline" data-team-crop-reset><i class="bx bx-reset"></i>Reset</button>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" data-team-crop-cancel>Cancel</button>
+                <button type="button" class="btn btn-primary" data-team-crop-apply><i class="bx bx-crop"></i>Apply Crop</button>
+            </div>
+        </section>
+    </div>
     <script src="/assets/js/env.js"></script>
     <script type="module" src="/assets/js/admin-team.js"></script>
 </body>

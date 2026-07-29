@@ -3,7 +3,13 @@ import { showFeedbackPopup } from "./feedback.js";
 
 const tableName = "team_members";
 const bucketName = "team-photos";
-const state = { members: [], adminUser: null, previewUrl: "" };
+const state = {
+    members: [],
+    adminUser: null,
+    previewUrl: "",
+    croppedPhoto: null,
+    crop: { sourceUrl: "", file: null, naturalWidth: 0, naturalHeight: 0, baseScale: 1, zoom: 1, offsetX: 0, offsetY: 0, dragging: false, pointerX: 0, pointerY: 0 }
+};
 
 document.addEventListener("DOMContentLoaded", async function () {
     initLogout();
@@ -20,6 +26,18 @@ function bindEvents() {
     document.querySelector("[data-team-form]")?.addEventListener("submit", saveMember);
     document.querySelector("[data-team-list]")?.addEventListener("click", handleListAction);
     document.querySelector("[name='photo_file']")?.addEventListener("change", previewSelectedPhoto);
+    document.querySelectorAll("[data-team-crop-cancel]").forEach(button => button.addEventListener("click", cancelPhotoCrop));
+    document.querySelector("[data-team-crop-reset]")?.addEventListener("click", resetCropPosition);
+    document.querySelector("[data-team-crop-apply]")?.addEventListener("click", applyPhotoCrop);
+    document.querySelector("[data-team-crop-zoom]")?.addEventListener("input", handleCropZoom);
+    const workspace = document.querySelector("[data-team-crop-workspace]");
+    workspace?.addEventListener("pointerdown", startCropDrag);
+    workspace?.addEventListener("pointermove", moveCropImage);
+    workspace?.addEventListener("pointerup", endCropDrag);
+    workspace?.addEventListener("pointercancel", endCropDrag);
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !document.querySelector("[data-team-crop-modal]")?.hidden) cancelPhotoCrop();
+    });
 }
 
 async function guardAdmin() {
@@ -128,6 +146,7 @@ function openForm(member = null) {
     if (!form || !panel) return;
 
     resetPhotoPreview();
+    state.croppedPhoto = null;
     setStatus(document.querySelector("[data-team-form-status]"), "", "");
     form.reset();
     form.elements.id.value = member?.id || "";
@@ -168,10 +187,153 @@ function previewSelectedPhoto(event) {
         setStatus(feedback, "Choose a PNG, JPG or WebP image smaller than 5 MB.", "error");
         return;
     }
-    resetPhotoPreview();
-    state.previewUrl = URL.createObjectURL(file);
-    renderPhotoPreview(state.previewUrl);
-    setStatus(feedback, `${file.name} selected.`, "success");
+    openPhotoCrop(file);
+    setStatus(feedback, `${file.name} selected. Adjust the crop and apply it.`, "info");
+}
+
+function openPhotoCrop(file) {
+    const modal = document.querySelector("[data-team-crop-modal]");
+    const image = document.querySelector("[data-team-crop-image]");
+    if (!modal || !image) return;
+    releaseCropSource();
+    state.crop.file = file;
+    state.crop.sourceUrl = URL.createObjectURL(file);
+    modal.hidden = false;
+    document.body.classList.add("no-scroll");
+    image.onload = function () {
+        state.crop.naturalWidth = image.naturalWidth;
+        state.crop.naturalHeight = image.naturalHeight;
+        resetCropPosition();
+    };
+    image.src = state.crop.sourceUrl;
+}
+
+function resetCropPosition() {
+    state.crop.zoom = 1;
+    state.crop.offsetX = 0;
+    state.crop.offsetY = 0;
+    const zoom = document.querySelector("[data-team-crop-zoom]");
+    if (zoom) zoom.value = "1";
+    calculateCropBaseScale();
+    renderCropImage();
+}
+
+function calculateCropBaseScale() {
+    const frame = document.querySelector("[data-team-crop-frame]");
+    if (!frame || !state.crop.naturalWidth || !state.crop.naturalHeight) return;
+    state.crop.baseScale = Math.max(
+        frame.clientWidth / state.crop.naturalWidth,
+        frame.clientHeight / state.crop.naturalHeight
+    );
+}
+
+function handleCropZoom(event) {
+    state.crop.zoom = Number(event.target.value) || 1;
+    clampCropOffset();
+    renderCropImage();
+}
+
+function startCropDrag(event) {
+    if (!state.crop.file) return;
+    state.crop.dragging = true;
+    state.crop.pointerX = event.clientX;
+    state.crop.pointerY = event.clientY;
+    event.currentTarget.setPointerCapture(event.pointerId);
+}
+
+function moveCropImage(event) {
+    if (!state.crop.dragging) return;
+    state.crop.offsetX += event.clientX - state.crop.pointerX;
+    state.crop.offsetY += event.clientY - state.crop.pointerY;
+    state.crop.pointerX = event.clientX;
+    state.crop.pointerY = event.clientY;
+    clampCropOffset();
+    renderCropImage();
+}
+
+function endCropDrag(event) {
+    state.crop.dragging = false;
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+}
+
+function clampCropOffset() {
+    const frame = document.querySelector("[data-team-crop-frame]");
+    if (!frame) return;
+    const renderedWidth = state.crop.naturalWidth * state.crop.baseScale * state.crop.zoom;
+    const renderedHeight = state.crop.naturalHeight * state.crop.baseScale * state.crop.zoom;
+    const limitX = Math.max(0, (renderedWidth - frame.clientWidth) / 2);
+    const limitY = Math.max(0, (renderedHeight - frame.clientHeight) / 2);
+    state.crop.offsetX = Math.max(-limitX, Math.min(limitX, state.crop.offsetX));
+    state.crop.offsetY = Math.max(-limitY, Math.min(limitY, state.crop.offsetY));
+}
+
+function renderCropImage() {
+    const image = document.querySelector("[data-team-crop-image]");
+    if (!image || !state.crop.naturalWidth) return;
+    image.style.width = `${state.crop.naturalWidth * state.crop.baseScale}px`;
+    image.style.transform = `translate(-50%, -50%) translate(${state.crop.offsetX}px, ${state.crop.offsetY}px) scale(${state.crop.zoom})`;
+}
+
+async function applyPhotoCrop() {
+    const image = document.querySelector("[data-team-crop-image]");
+    const workspace = document.querySelector("[data-team-crop-workspace]");
+    const frame = document.querySelector("[data-team-crop-frame]");
+    const button = document.querySelector("[data-team-crop-apply]");
+    if (!image || !workspace || !frame || !state.crop.file) return;
+    setButtonLoading(button, true);
+    try {
+        const scale = state.crop.baseScale * state.crop.zoom;
+        const imageLeft = workspace.clientWidth / 2 + state.crop.offsetX - state.crop.naturalWidth * scale / 2;
+        const imageTop = workspace.clientHeight / 2 + state.crop.offsetY - state.crop.naturalHeight * scale / 2;
+        const workspaceRect = workspace.getBoundingClientRect();
+        const frameRect = frame.getBoundingClientRect();
+        const frameLeft = frameRect.left - workspaceRect.left;
+        const frameTop = frameRect.top - workspaceRect.top;
+        const sourceX = (frameLeft - imageLeft) / scale;
+        const sourceY = (frameTop - imageTop) / scale;
+        const sourceWidth = frame.clientWidth / scale;
+        const sourceHeight = frame.clientHeight / scale;
+        const canvas = document.createElement("canvas");
+        canvas.width = 1200;
+        canvas.height = 960;
+        const context = canvas.getContext("2d");
+        context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise((resolve, reject) => {
+            canvas.toBlob(value => value ? resolve(value) : reject(new Error("Could not create cropped image.")), "image/webp", 0.9);
+        });
+        const baseName = state.crop.file.name.replace(/\.[^.]+$/, "") || "team-photo";
+        state.croppedPhoto = new File([blob], `${baseName}-cropped.webp`, { type: "image/webp" });
+        resetPhotoPreview();
+        state.previewUrl = URL.createObjectURL(state.croppedPhoto);
+        renderPhotoPreview(state.previewUrl);
+        setStatus(document.querySelector("[data-team-photo-feedback]"), "Crop applied at 1200 × 960. Save the member to upload it.", "success");
+        closeCropModal();
+    } catch (error) {
+        console.error("Photo crop failed:", error);
+        setStatus(document.querySelector("[data-team-photo-feedback]"), error.message || "Could not crop this photo.", "error");
+    } finally {
+        setButtonLoading(button, false);
+    }
+}
+
+function cancelPhotoCrop() {
+    const input = document.querySelector("[name='photo_file']");
+    if (input) input.value = "";
+    state.croppedPhoto = null;
+    closeCropModal();
+}
+
+function closeCropModal() {
+    const modal = document.querySelector("[data-team-crop-modal]");
+    if (modal) modal.hidden = true;
+    document.body.classList.remove("no-scroll");
+    releaseCropSource();
+}
+
+function releaseCropSource() {
+    if (state.crop.sourceUrl) URL.revokeObjectURL(state.crop.sourceUrl);
+    state.crop.sourceUrl = "";
+    state.crop.file = null;
 }
 
 function renderPhotoPreview(url) {
@@ -197,7 +359,7 @@ async function saveMember(event) {
     try {
         let photoUrl = form.elements.photo_url.value;
         let photoPath = previousPhotoPath;
-        const photoFile = form.elements.photo_file.files?.[0];
+        const photoFile = state.croppedPhoto || form.elements.photo_file.files?.[0];
         if (photoFile) {
             const upload = await uploadPhoto(photoFile, form.elements.full_name.value);
             photoUrl = upload.url;
