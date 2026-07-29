@@ -435,8 +435,9 @@ section {
 }
 
 .team-grid-leadership {
-    align-items: stretch;
-    grid-template-columns: repeat(2, minmax(280px, 380px));
+    align-items: start;
+    gap: 48px 32px;
+    grid-template-columns: repeat(2, minmax(280px, 440px));
     justify-content: center;
 }
 
@@ -1753,27 +1754,43 @@ section {
 /* Team */
 
 .team-member {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    text-align: center;
+    padding: 0;
+    text-align: left;
+}
+
+.team-member:hover {
+    box-shadow: none;
+    transform: none;
 }
 
 .team-image {
-    border-radius: 8px;
-    margin-bottom: 18px;
+    background: #eef1f5;
+    border-radius: 2px;
+    margin-bottom: 22px;
     overflow: hidden;
 }
 
 .team-image img {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 5 / 4;
     object-fit: cover;
+    transition: transform 0.45s ease;
     width: 100%;
+}
+
+.team-member:hover .team-image img {
+    transform: scale(1.025);
 }
 
 .team-image-placeholder {
     align-items: center;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 5 / 4;
     background: linear-gradient(135deg, #f9fafb 0%, #e8edf3 100%);
     border: 1px solid var(--line);
     color: var(--primary-color);
@@ -1783,20 +1800,27 @@ section {
 }
 
 .team-member h4 {
-    font-size: 18px;
+    font-size: 22px;
+    margin: 0;
+}
+
+.team-member h4 a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.team-member h4 a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+    text-underline-offset: 5px;
 }
 
 .team-role {
-    color: var(--primary-color);
-    display: -webkit-box;
-    font-size: 14px;
-    font-weight: 900;
-    line-height: 1.5;
-    margin: 5px 0 12px;
-    min-height: 42px;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+    margin: 6px 0 0;
 }
 
 .team-description {
@@ -1848,6 +1872,151 @@ section {
 
 .team-card-footer .team-social {
     margin: 0;
+}
+
+.team-profile-page {
+    background: var(--light-bg);
+    min-height: 70vh;
+    padding: 150px 0 90px;
+}
+
+.team-profile-back {
+    align-items: center;
+    color: var(--text-secondary);
+    display: inline-flex;
+    font-size: 14px;
+    font-weight: 800;
+    gap: 7px;
+    margin-bottom: 28px;
+    text-decoration: none;
+}
+
+.team-profile-back:hover {
+    color: var(--primary-color);
+}
+
+.team-profile-back i {
+    font-size: 21px;
+}
+
+.team-profile-shell {
+    align-items: start;
+    background: var(--white);
+    display: grid;
+    gap: clamp(36px, 6vw, 84px);
+    grid-template-columns: minmax(300px, 0.9fr) minmax(320px, 1.1fr);
+    padding: clamp(28px, 5vw, 72px);
+}
+
+.team-profile-portrait {
+    background: #eef1f5;
+    overflow: hidden;
+    width: 100%;
+}
+
+.team-profile-portrait img {
+    aspect-ratio: 4 / 5;
+    display: block;
+    object-fit: cover;
+    width: 100%;
+}
+
+.team-profile-portrait.team-image-placeholder {
+    aspect-ratio: 4 / 5;
+}
+
+.team-profile-details {
+    padding-top: 10px;
+}
+
+.team-profile-details h1 {
+    font-size: clamp(36px, 5vw, 58px);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin: 16px 0 12px;
+}
+
+.team-profile-role {
+    color: var(--primary-color);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.team-profile-bio {
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.9;
+    margin: 30px 0;
+}
+
+.team-profile-details h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+}
+
+.team-profile-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.team-profile-skills span {
+    background: var(--light-bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 12px;
+}
+
+.team-profile-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 34px;
+}
+
+.team-profile-socials a {
+    align-items: center;
+    background: var(--secondary-color);
+    border-radius: 50%;
+    color: var(--white);
+    display: flex;
+    font-size: 20px;
+    height: 44px;
+    justify-content: center;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+    width: 44px;
+}
+
+.team-profile-socials a:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.team-profile-not-found {
+    grid-column: 1 / -1;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.team-profile-not-found > i {
+    color: var(--primary-color);
+    font-size: 72px;
+}
+
+.team-profile-not-found p {
+    color: var(--text-secondary);
+    margin: 12px 0 28px;
+}
+
+.team-profile-loading {
+    color: var(--text-secondary);
+    grid-column: 1 / -1;
+    text-align: center;
 }
 
 .future-team-section {
@@ -2177,6 +2346,20 @@ section {
 
     .news-article-layout {
         grid-template-columns: 1fr;
+    }
+
+    .team-profile-page {
+        padding: 110px 0 60px;
+    }
+
+    .team-profile-shell {
+        gap: 30px;
+        grid-template-columns: 1fr;
+        padding: 22px;
+    }
+
+    .team-profile-details h1 {
+        font-size: 36px;
     }
 
     .news-share {
